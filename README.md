@@ -96,14 +96,15 @@
 <!-- One complete question and answer, pasted as text, with the source line
      visible. Milestone 4. -->
 
-**Question:**
+**Question:** How often does the campus shuttle run on weekends?
 
-**Answer:**
+**Answer:** The campus shuttle runs a loop every 40 minutes on weekends.
+ Source: transit_shuttle.txt
 
 ```
 ```
 
-**My relevance cutoff:**
+**My relevance cutoff:** 0.6
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -171,11 +172,11 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunks stand on their own | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 5. Answers return within 5 seconds | 4 of 5 | Not measured | Not measured | Not measured | NOT YET MEASURED |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
@@ -194,11 +195,11 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunks contain the answer | MET | All 5 questions retrieved a chunk containing the expected answer in all three runs. |
+| 2 | Every answer names a source | MET | All 15 generated answers named at least one source document. |
+| 3 | Gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding the 4 of 5 target. |
+| 4 | Chunks stand on their own | MET | All 5 sampled chunks contained enough information to answer one clear question without another chunk. |
+| 5 | Answers return within 5 seconds | NOT MEASURED | The evaluation output does not record response time, so I do not have evidence to determine whether this target was met. |
 
 ## Diagnoses
 
@@ -220,11 +221,16 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
      Milestone 3. -->
 
+Criteria 1 through 4 were met in the baseline evaluation.
+
+Criterion 5 could not be measured because the evaluation records the answers, retrieved sources, distances, and gate results, but it does not record how long each response takes. The problem is with the evaluation data rather than evidence that the generation itself is too slow. I need to record response time before I can determine whether the 5-second target is met.
+     
+
 ## The Improvement
 
-**What I changed:**
+**What I changed:** I added response-time measurement to the evaluation so each question records how many seconds it takes to retrieve and generate an answer.
 
-**Why I picked it:**
+**Why I picked it:** I picked this change because Criterion 5 requires answers to finish within 5 seconds, but my baseline evaluation did not record timing. Adding timing gives me the evidence needed to test the criterion instead of guessing.
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
@@ -236,11 +242,11 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 2. Every answer names a source | 5 of 5 | ? | ? | ? | ? |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 4. Chunks stand on their own | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+| 5. Answers return within 5 seconds | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
 **Did it help?**
 
@@ -250,6 +256,8 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
      tell.
 
      Milestone 4. -->
+
+     Yes. The change let me measure Criterion 5 instead of guessing. All 15 generated answers finished within 5 seconds, with the slowest response taking 4.82 seconds, so the criterion was met.
 
 ## What's Still Broken
 
