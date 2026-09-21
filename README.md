@@ -27,10 +27,12 @@
 
      Milestone 5. -->
 
+     The Unofficial Guide is a RAG system that searches the campus_life corpus for information about student life. It can answer questions about dining, housing, courses, transportation, and other campus services. The system retrieves relevant chunks from the documents and uses them to generate an answer with a source. If the documents do not have enough relevant information, the system refuses to answer.
+
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** Variable, one paragraph plus the document title  
+**Overlap:** No fixed character overlap; the document title is repeated in each chunk
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -113,8 +115,19 @@
      Milestone 4. -->
 
 | Question | In corpus? | Best distance |
-|---|---|---|
-|  |  |  |
+|---|---|---:|
+| Parking permits | Yes | 0.1928 |
+| Kestrel Commons wait times | Yes | 0.1814 |
+| Morrow House laundry | Yes | 0.1067 |
+| CS 210 exams | Yes | 0.3631 |
+| Campus shuttle | Yes | 0.1799 |
+| Capital of Mongolia | No | 0.7873 |
+| Diesel engine oil | No | 0.9228 |
+| 1994 World Cup | No | 0.8474 |
+| Ibuprofen dosage | No | 0.8487 |
+| Rust for loop | No | 0.8598 |
+
+My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope questions had best distances from 0.7873 to 0.9228. I kept the cutoff at 0.6 because it falls between the two groups.
 
 ## How I Used AI
 
@@ -127,9 +140,9 @@
 
      Milestone 5. -->
 
-**1.**
+**1.** I used AI to help troubleshoot my Python environment when the project could not import ChromaDB. It helped me identify that VS Code was using my system Python instead of the project's virtual environment. I activated the correct `.venv` and verified that all tests passed.
 
-**2.**
+**2.** I used AI to help think through a chunking strategy for the campus_life corpus. It suggested paragraph-based chunks because the documents are short but often contain multiple topics. I kept that idea, repeated the document title in each chunk for context, and tested five sample chunks to make sure they could stand on their own.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
