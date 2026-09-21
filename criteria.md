@@ -23,8 +23,7 @@ For at least 4 of my 5 test questions, the retrieved chunks include one that
 contains the answer.
 
 **Why this target:**
-<!-- e.g. "One of my questions is about a topic only two documents mention, so
-     I expect that one to be hard." -->
+Because the CS 210 exams question is a different topic from the other four. It uses course-specific information instead of campus location or service information, so I think the system may have a harder time retrieving the correct chunk. That is why I chose 4 out of 5 instead of 5 out of 5.
 
 ---
 
@@ -33,8 +32,7 @@ contains the answer.
 Every answer the system produces names at least one source document.
 
 **Why this target:**
-<!-- Why all five and not four? What about your setup makes that achievable —
-     or what would have to go wrong for it not to be? -->
+It is important to know where every result came from, even if the answer is incorrect or unrelated. Having a source for every answer makes it easier to check whether the system is actually using the documents.
 
 ---
 
@@ -50,48 +48,29 @@ in at least 4 of 5 tries.
      just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
 
 **Why this target:**
-<!-- What did your distances look like when you set the cutoff in Milestone 4?
-     Was there a clean gap, or did the two groups overlap? -->
+I chose 4 out of 5 because I want the system to reject most unrelated questions while keeping the cutoff somewhat loose so relevant questions are less likely to be rejected.
 
 ---
 
 ## 4. Something about your chunks
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know if your chunks were the right size? Name something
-     countable or observable.
-
-     Examples of the right shape — don't copy these, they should come from
-     what you actually saw in Milestone 3:
-       - "At least 4 of 5 sampled chunks read as a complete thought, with no
-          sentence cut in half at either end."
-       - "No chunk is shorter than 200 characters, since anything below that
-          in my corpus turned out to be a heading with no content under it." -->
-
+If you printed 5 chunks, what would make you say “these chunks are good”?
 
 
 **Why this target:**
 
-
+Out of 5 sample chunks, at least 4 should be able to answer one clear question without needing another chunk.
 
 ---
 
 ## 5. Your choice
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. It could be about
-     speed, about refusals, about a particular kind of question your corpus
-     handles badly, about source attribution being correct rather than merely
-     present — anything, as long as it names a number or an observable
-     outcome. -->
-
+For at least 4 of my 5 test questions, the system should return a complete answer within 5 seconds.
 
 
 **Why this target:**
 
-
+I chose 5 seconds because the system needs time to retrieve the relevant chunks and generate an answer, but I still want the response to feel fast for the user.
 
 ---
 
