@@ -61,6 +61,12 @@ If you printed 5 chunks, what would make you say “these chunks are good”?
 
 Out of 5 sample chunks, at least 4 should be able to answer one clear question without needing another chunk.
 
+> **Revised in unit 2:** Out of 5 sample chunks, at least 4 should be able to answer one clear question without needing another chunk.
+>
+> **Why revised:** My original Criterion 4 was written as a question instead of a measurable target. I revised it so another person could test it consistently.
+>
+> **Why this target:** I chose 4 out of 5 because most chunks should stand on their own, while still allowing one chunk to be less clear if information is split between topics or paragraphs.
+
 ---
 
 ## 5. Your choice
