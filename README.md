@@ -269,9 +269,13 @@ Criterion 5 could not be measured because the evaluation records the answers, re
 
      Milestone 5. -->
 
+     None of my five criteria were missed after the improvement. However, the CS 210 question showed that retrieval is not always perfect because the first result was about CS 340 instead of CS 210. The correct CS 210 document was still returned in the top five, so the system still met my retrieval criterion.
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+
+     I would write Criterion 5 differently so I knew from the beginning how I planned to measure response time. The target itself was measurable, but my original evaluation did not record timing. I would make sure every criterion has a clear way to collect its evidence before running the first evaluation.
