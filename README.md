@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
+Michael Amoo — Corpus: `campus_life`
 
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
@@ -98,10 +98,12 @@
 
 **Question:** How often does the campus shuttle run on weekends?
 
-**Answer:** The campus shuttle runs a loop every 40 minutes on weekends.
- Source: transit_shuttle.txt
+**Answer:**
 
-```
+```text
+The campus shuttle runs a loop every 40 minutes on weekends.
+
+Source: transit_shuttle.txt
 ```
 
 **My relevance cutoff:** 0.6
@@ -178,9 +180,59 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 | 4. Chunks stand on their own | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 5. Answers return within 5 seconds | 4 of 5 | Not measured | Not measured | Not measured | NOT YET MEASURED |
 
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+### Evidence — Before
+
+Produced by `run_eval.py::main`, using retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
+
+**Criteria 1 and 2 — retrieval and source naming**
+
+```text
+Question: How quickly do student parking permits for the west lots sell out?
+Best distance: 0.1928
+Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
+
+Student parking permits for the west lots sell out in about three days (admin_parking_permits.txt).
+```
+
+The retrieved set contained the document with the expected answer, and the generated answer named that source.
+
+**Criterion 3 — relevance gate**
+
+```text
+What is the capital of Mongolia?                                  refused (0.787)
+How do I change the oil in a diesel engine?                      refused (0.923)
+Who won the 1994 World Cup?                                      refused (0.847)
+What is the recommended dosage of ibuprofen for a headache?      refused (0.849)
+How do I write a for loop in Rust?                               refused (0.860)
+
+Gate refused 5 of 5.
+```
+
+Produced by `run_eval.py::check_out_of_scope`.
+
+**Criterion 4 — chunk quality**
+
+```text
+source: admin_add_drop_deadline.txt#0
+produced by: chunker.py::split_documents
+
+On the add/drop deadline
+
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
+```
+
+This sample chunk contains enough context to answer a clear question on its own.
+
+**Criterion 5 — response time**
+
+The baseline run did not record response time. Its real output recorded fields such as:
+
+```text
+Best distance: 0.1928 (passed the gate)
+Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
+```
+
+Because there was no timing field, Criterion 5 could not be measured from the baseline evidence.
 
 ## Verdicts
 
@@ -243,10 +295,57 @@ Criterion 5 could not be measured because the evaluation records the answers, re
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
-| 2. Every answer names a source | 5 of 5 | ? | ? | ? | ? |
+| 2. Every answer names a source | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 4. Chunks stand on their own | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 5. Answers return within 5 seconds | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
+
+### Evidence — After
+
+Produced by `run_eval.py::main`, using retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
+
+**Criteria 1 and 2 — retrieval and source naming**
+
+```text
+Question: How quickly do student parking permits for the west lots sell out?
+Best distance: 0.1928
+Response time: 4.82 seconds
+Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
+
+Student parking permits for the west lots sell out in about three days. (Source: admin_parking_permits.txt)
+```
+
+**Criterion 3 — relevance gate**
+
+```text
+Gate refused 5 of 5 out-of-scope questions.
+Best distances: 0.787, 0.923, 0.847, 0.849, 0.860
+```
+
+Produced by `run_eval.py::check_out_of_scope`.
+
+**Criterion 4 — chunk quality**
+
+```text
+source: admin_add_drop_deadline.txt#0
+produced by: chunker.py::split_documents
+
+On the add/drop deadline
+
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript.
+```
+
+**Criterion 5 — response time**
+
+```text
+Parking permits:      4.82s, 0.59s, 0.67s
+Kestrel Commons:      3.38s, 0.67s, 0.76s
+Morrow House laundry: 0.73s, 0.73s, 0.75s
+CS 210 exams:         0.76s, 0.60s, 0.68s
+Campus shuttle:       1.03s, 0.59s, 0.60s
+```
+
+All 15 measured responses completed within 5 seconds.
 
 **Did it help?**
 
