@@ -245,6 +245,8 @@ Because there was no timing field, Criterion 5 could not be measured from the ba
 
      Milestone 2. -->
 
+### Unit 1
+
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
 | 1 | Retrieved chunks contain the answer | MET | All 5 questions retrieved a chunk containing the expected answer in all three runs. |
@@ -252,6 +254,16 @@ Because there was no timing field, Criterion 5 could not be measured from the ba
 | 3 | Gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding the 4 of 5 target. |
 | 4 | Chunks stand on their own | MET | All 5 sampled chunks contained enough information to answer one clear question without another chunk. |
 | 5 | Answers return within 5 seconds | NOT MEASURED | The evaluation output does not record response time, so I do not have evidence to determine whether this target was met. |
+
+### Unit 2
+
+| # | Criterion | Verdict | How I decided |
+|---|---|---|---|
+| 1 | Retrieved chunks contain the answer | MET | All 5 test questions retrieved at least one chunk containing the expected answer in all three runs, which exceeds my target of 4 of 5. |
+| 2 | Every answer names a source | MET | All 15 generated answers named at least one source document, meeting my target of every answer naming a source. |
+| 3 | Gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding my target of at least 4 of 5. |
+| 4 | Chunks stand on their own | MET | All 5 sample chunks contained enough information to answer one clear question without needing another chunk, exceeding my target of 4 of 5. |
+| 5 | Answers return within 5 seconds | MET | In the latest baseline run, all 15 answers completed within 5 seconds, meeting my target of at least 4 of 5 questions finishing within 5 seconds. |
 
 ## Diagnoses
 
