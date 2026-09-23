@@ -285,10 +285,13 @@ Because there was no timing field, Criterion 5 could not be measured from the ba
 
      Milestone 3. -->
 
-Criteria 1 through 4 were met in the baseline evaluation.
+None of my five criteria were missed in the baseline evaluation. However, Criterion 1 was probably too forgiving because it only requires the correct answer to appear somewhere in the top five retrieved chunks.
 
-Criterion 5 could not be measured because the evaluation records the answers, retrieved sources, distances, and gate results, but it does not record how long each response takes. The problem is with the evaluation data rather than evidence that the generation itself is too slow. I need to record response time before I can determine whether the 5-second target is met.
-     
+The CS 210 question exposed a retrieval weakness even though the criterion still passed. The system retrieved CS 340 material along with the correct CS 210 documents, and CS 340 could rank above the exact course I asked about.
+
+The stage involved is retrieval. `store.py::search` currently ranks chunks using semantic similarity from the embedding model. It does not separately reward an exact keyword such as "CS 210." Because CS 210 and CS 340 documents discuss similar topics such as courses and exams, their embeddings can be similar even though the course numbers are different.
+
+If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 questions, the top-ranked result must contain the answer instead of allowing the answer anywhere in the top five.
 
 ## The Improvement
 
