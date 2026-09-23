@@ -49,3 +49,8 @@ flask>=3.0,<3.2
 # development server and says so out loud; this is the one you actually deploy
 # behind. Installed now so unit 9 is a command, not a dependency problem.
 gunicorn>=23.0,<24.0
+
+# Fuzzy string matching, used by scorer.py to decide whether an answer
+# contains what `expects` asked for without holding it to exact phrasing.
+# C extension, no build step, installs in seconds.
+rapidfuzz>=3.9,<4.0
