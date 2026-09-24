@@ -156,9 +156,6 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 ---
 
-
----
-
 # Unit 2
 
 ## Run Log — Before
@@ -202,6 +199,15 @@ Gate refused 5 of 5.
 Produced by `run_eval.py::check_out_of_scope`.
 
 **Criterion 4 — chunk quality**
+
+```text
+source: admin_add_drop_deadline.txt#0
+produced by: chunker.py::split_documents
+
+On the add/drop deadline
+
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript.
+```
 
 The five sample chunks produced by `chunker.py::split_documents` are shown in the Unit 1 **Sample Chunks** section above. All five contained enough context to answer one clear question without another chunk.
 
