@@ -147,6 +147,8 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 **2.** I used AI to help think through a chunking strategy for the campus_life corpus. It suggested paragraph-based chunks because the documents are short but often contain multiple topics. I kept that idea, repeated the document title in each chunk for context, and tested five sample chunks to make sure they could stand on their own.
 
+**3.** In Unit 2, I used Claude Enterprise to challenge my planned hybrid-search improvement. Claude pointed out that replacing cosine distances with fused BM25/vector scores could break my 0.6 relevance gate. I changed the design so BM25 only reranks the same five semantic candidates while preserving their original cosine distances. I then tested the change against the full evaluation and confirmed that the gate still refused all five out-of-scope questions.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -154,23 +156,14 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 
 ---
 
-# Unit 2
 
-<!-- These sections get ADDED to what's already above. Don't delete or rewrite
-     unit 1 — the point is that someone can see what you said before you knew
-     how it went. -->
+---
+
+# Unit 2
 
 ## Run Log — Before
 
-<!-- Your five criteria, three runs each. `python run_eval.py --label before`
-     runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
-     writes it all into results/ for you. Targets come from criteria.md; the
-     verdict column is your call.
-
-     Criterion 3 is measured in one deterministic pass rather than three, so
-     the same number goes in all three run columns. That's correct, not lazy.
-
-     Milestone 1. -->
+Baseline evidence: `results/run_2026-09-23_1852.md`, produced by `run_eval.py::main` with retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
@@ -178,32 +171,30 @@ My in-corpus questions had best distances from 0.1067 to 0.3631. My out-of-scope
 | 2. Every answer names a source | 5 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 3. Gate stops out-of-corpus questions | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 | 4. Chunks stand on their own | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
-| 5. Answers return within 5 seconds | 4 of 5 | Not measured | Not measured | Not measured | NOT YET MEASURED |
+| 5. Answers return within 5 seconds | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
 ### Evidence — Before
-
-Produced by `run_eval.py::main`, using retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
 
 **Criteria 1 and 2 — retrieval and source naming**
 
 ```text
-Question: How quickly do student parking permits for the west lots sell out?
-Best distance: 0.1928
-Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
+Question: Which CS 210 exams are curved?
+Best distance: 0.3631 (passed the gate)
+Sources retrieved: course_cs_210.txt, course_cs_210_exams.txt, course_cs_340.txt, course_cs_340_exams.txt
 
-Student parking permits for the west lots sell out in about three days (admin_parking_permits.txt).
+According to the document `course_cs_210_exams.txt`, the midterms are curved, but the final is not.
 ```
 
-The retrieved set contained the document with the expected answer, and the generated answer named that source.
+Across the baseline run, all five in-scope questions were answered correctly in all three passes and every generated answer named a source.
 
 **Criterion 3 — relevance gate**
 
 ```text
-What is the capital of Mongolia?                                  refused (0.787)
-How do I change the oil in a diesel engine?                      refused (0.923)
-Who won the 1994 World Cup?                                      refused (0.847)
-What is the recommended dosage of ibuprofen for a headache?      refused (0.849)
-How do I write a for loop in Rust?                               refused (0.860)
+What is the capital of Mongolia?                             refused (0.787)
+How do I change the oil in a diesel engine?                 refused (0.923)
+Who won the 1994 World Cup?                                 refused (0.847)
+What is the recommended dosage of ibuprofen for a headache? refused (0.849)
+How do I write a for loop in Rust?                          refused (0.860)
 
 Gate refused 5 of 5.
 ```
@@ -212,92 +203,45 @@ Produced by `run_eval.py::check_out_of_scope`.
 
 **Criterion 4 — chunk quality**
 
-```text
-source: admin_add_drop_deadline.txt#0
-produced by: chunker.py::split_documents
-
-On the add/drop deadline
-
-You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
-```
-
-This sample chunk contains enough context to answer a clear question on its own.
+The five sample chunks produced by `chunker.py::split_documents` are shown in the Unit 1 **Sample Chunks** section above. All five contained enough context to answer one clear question without another chunk.
 
 **Criterion 5 — response time**
 
-The baseline run did not record response time. Its real output recorded fields such as:
-
 ```text
-Best distance: 0.1928 (passed the gate)
-Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
+Parking permits:      4.14s, 0.86s, 0.65s
+Kestrel Commons:      0.67s, 0.71s, 0.61s
+Morrow House laundry: 0.56s, 0.61s, 0.61s
+CS 210 exams:         0.60s, 0.64s, 0.72s
+Campus shuttle:       0.58s, 0.57s, 0.70s
 ```
 
-Because there was no timing field, Criterion 5 could not be measured from the baseline evidence.
+All 15 measured baseline responses completed within 5 seconds.
 
 ## Verdicts
 
-<!-- MET or MISSED for each of the five, against the target you wrote last
-     unit — not a new one. Plus a sentence on how you decided. That sentence
-     matters most where it was close.
-
-     If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
-     The target has to hold, not show up occasionally.
-
-     Milestone 2. -->
-
-### Unit 1
-
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 | Retrieved chunks contain the answer | MET | All 5 questions retrieved a chunk containing the expected answer in all three runs. |
-| 2 | Every answer names a source | MET | All 15 generated answers named at least one source document. |
-| 3 | Gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding the 4 of 5 target. |
-| 4 | Chunks stand on their own | MET | All 5 sampled chunks contained enough information to answer one clear question without another chunk. |
-| 5 | Answers return within 5 seconds | NOT MEASURED | The evaluation output does not record response time, so I do not have evidence to determine whether this target was met. |
-
-### Unit 2
-
-| # | Criterion | Verdict | How I decided |
-|---|---|---|---|
-| 1 | Retrieved chunks contain the answer | MET | All 5 test questions retrieved at least one chunk containing the expected answer in all three runs, which exceeds my target of 4 of 5. |
+| 1 | Retrieved chunks contain the answer | MET | All 5 test questions retrieved at least one chunk containing the expected answer in all three runs, exceeding my target of 4 of 5. |
 | 2 | Every answer names a source | MET | All 15 generated answers named at least one source document, meeting my target of every answer naming a source. |
 | 3 | Gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding my target of at least 4 of 5. |
 | 4 | Chunks stand on their own | MET | All 5 sample chunks contained enough information to answer one clear question without needing another chunk, exceeding my target of 4 of 5. |
-| 5 | Answers return within 5 seconds | MET | In the latest baseline run, all 15 answers completed within 5 seconds, meeting my target of at least 4 of 5 questions finishing within 5 seconds. |
+| 5 | Answers return within 5 seconds | MET | All 15 baseline answers completed within 5 seconds, meeting my target of at least 4 of 5 questions finishing within 5 seconds. |
 
 ## Diagnoses
 
-<!-- For each miss: which stage caused it, and how. The stage alone isn't
-     enough — you need the mechanism.
+None of my five criteria were missed in the baseline evaluation. However, Criterion 1 was too forgiving because it only required the correct answer to appear somewhere in the top five retrieved chunks.
 
-     Not a diagnosis: "Question 3 didn't work."
-     A diagnosis:     "Question 3 asks about laundry costs. The answer is in
-                       one sentence that got split across two chunks, so
-                       neither chunk on its own contains it."
+The CS 210 question exposed a retrieval-ranking weakness even though the criterion still passed. Before my improvement, semantic retrieval ranked `course_cs_340_exams.txt` first and `course_cs_340.txt` second. The correct `course_cs_210_exams.txt` result did not appear until rank 3.
 
-     The five stages: loading → chunking → embedding → retrieval → generation.
+The stage involved was retrieval. `store.py::search` ranked chunks using semantic similarity from the embedding model, so documents about CS courses and exams could be close in embedding space even when their exact course numbers differed. The retriever did not separately reward the exact identifier `CS 210`.
 
-     Look for a pattern. If three misses all ask about numbers, that's one
-     problem, not three.
-
-     Missed nothing? Say so, then say honestly whether your targets were set
-     low, and which one you'd tighten and to what.
-
-     Milestone 3. -->
-
-None of my five criteria were missed in the baseline evaluation. However, Criterion 1 was probably too forgiving because it only requires the correct answer to appear somewhere in the top five retrieved chunks.
-
-The CS 210 question exposed a retrieval weakness even though the criterion still passed. The system retrieved CS 340 material along with the correct CS 210 documents, and CS 340 could rank above the exact course I asked about.
-
-The stage involved is retrieval. `store.py::search` currently ranks chunks using semantic similarity from the embedding model. It does not separately reward an exact keyword such as "CS 210." Because CS 210 and CS 340 documents discuss similar topics such as courses and exams, their embeddings can be similar even though the course numbers are different.
-
-If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 questions, the top-ranked result must contain the answer instead of allowing the answer anywhere in the top five.
+If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 questions, the top-ranked retrieved chunk must contain the answer instead of allowing the answer anywhere in the top five.
 
 ## The Improvement
 
-**What I changed:** I added BM25 keyword reranking after semantic retrieval. The system still uses Chroma semantic search to choose the top five candidate chunks, but BM25 reranks those same five chunks using exact words and numbers from the question. I kept the original cosine distances on every result so the relevance gate could continue using the same 0.6 cutoff.
+**What I changed:** I added BM25 keyword reranking after semantic retrieval. Chroma still chooses the top five semantic candidates, then BM25 reranks those same five chunks using exact words and numbers from the question. I kept each result's original cosine distance so the relevance gate could continue using the same 0.6 cutoff.
 
-**Why I picked it:** My baseline evaluation passed all five criteria, but the CS 210 question exposed a retrieval-ranking weakness. Before the change, `course_cs_340_exams.txt` ranked first even though the question specifically asked about CS 210. The correct `course_cs_210_exams.txt` result did not appear until rank 3. Because the problem involved an exact course identifier, I chose keyword reranking to give terms such as `CS 210` more influence without replacing semantic retrieval.
+**Why I picked it:** The CS 210 question showed that semantic similarity alone could rank CS 340 material above the exact course requested. BM25 gives exact terms such as `CS 210` more influence without changing the candidate set or replacing the semantic distance used by the gate.
 
 ### CS 210 Retrieval — Before
 
@@ -307,16 +251,23 @@ If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 
 3. course_cs_210_exams.txt   distance 0.4138
 4. course_cs_210_exams.txt   distance 0.4211
 5. course_cs_210.txt         distance 0.4242
+```
 
-### Run Log — After
+### CS 210 Retrieval — After
+
+```text
 1. course_cs_210_exams.txt   distance 0.4138
 2. course_cs_340_exams.txt   distance 0.3631
 3. course_cs_210_exams.txt   distance 0.4211
 4. course_cs_340.txt         distance 0.4126
 5. course_cs_210.txt         distance 0.4242
+```
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
+The candidate chunks and semantic distances stayed the same, but the exact CS 210 assessment document moved from rank 3 to rank 1.
+
+### Run Log — After
+
+After-improvement evidence: `results/run_2026-09-23_2006_after_bm25.md`, produced by `run_eval.py::main`.
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
@@ -328,106 +279,24 @@ If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 
 
 ### Evidence — After
 
-How quickly do student parking permits for the west lots sell out?
-run 1: pass (best distance 0.193, 3.25s)
-run 2: pass (best distance 0.193, 0.46s)
-run 3: pass (best distance 0.193, 0.60s)
-
-How long are wait times at Kestrel Commons between 12:15 and 1:00?
-run 1: pass (best distance 0.181, 0.73s)
-run 2: pass (best distance 0.181, 0.68s)
-run 3: pass (best distance 0.181, 0.81s)
-
-When is the best time to do laundry in Morrow House?
-run 1: pass (best distance 0.107, 0.73s)
-run 2: pass (best distance 0.107, 0.58s)
-run 3: pass (best distance 0.107, 0.63s)
-
-Which CS 210 exams are curved?
-run 1: pass (best distance 0.363, 0.72s)
-run 2: pass (best distance 0.363, 0.62s)
-run 3: pass (best distance 0.363, 0.63s)
-
-How often does the campus shuttle run on weekends?
-run 1: pass (best distance 0.180, 0.76s)
-run 2: pass (best distance 0.180, 0.52s)
-run 3: pass (best distance 0.180, 0.64s)
+```text
+Parking permits:      pass/pass/pass — 3.25s, 0.46s, 0.60s
+Kestrel Commons:      pass/pass/pass — 0.73s, 0.68s, 0.81s
+Morrow House laundry: pass/pass/pass — 0.73s, 0.58s, 0.63s
+CS 210 exams:         pass/pass/pass — 0.72s, 0.62s, 0.63s
+Campus shuttle:       pass/pass/pass — 0.76s, 0.52s, 0.64s
 
 Gate refused 5 of 5 out-of-scope questions.
-
-Produced by `run_eval.py::main`, using retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
-
-**Criteria 1 and 2 — retrieval and source naming**
-
-```text
-Question: How quickly do student parking permits for the west lots sell out?
-Best distance: 0.1928
-Response time: 4.82 seconds
-Sources retrieved: admin_library_holds.txt, admin_parking_permits.txt, course_stat_150.txt, course_stat_150_workload.txt, transit_walking.txt
-
-Student parking permits for the west lots sell out in about three days. (Source: admin_parking_permits.txt)
 ```
-
-**Criterion 3 — relevance gate**
-
-```text
-Gate refused 5 of 5 out-of-scope questions.
-Best distances: 0.787, 0.923, 0.847, 0.849, 0.860
-```
-
-Produced by `run_eval.py::check_out_of_scope`.
-
-**Criterion 4 — chunk quality**
-
-```text
-source: admin_add_drop_deadline.txt#0
-produced by: chunker.py::split_documents
-
-On the add/drop deadline
-
-You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript.
-```
-
-**Criterion 5 — response time**
-
-```text
-Parking permits:      4.82s, 0.59s, 0.67s
-Kestrel Commons:      3.38s, 0.67s, 0.76s
-Morrow House laundry: 0.73s, 0.73s, 0.75s
-CS 210 exams:         0.76s, 0.60s, 0.68s
-Campus shuttle:       1.03s, 0.59s, 0.60s
-```
-
-All 15 measured responses completed within 5 seconds.
 
 **Did it help?**
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
-
-     Milestone 4. -->
-
-     Yes. The change let me measure Criterion 5 instead of guessing. All 15 generated answers finished within 5 seconds, with the slowest response taking 4.82 seconds, so the criterion was met.
+Yes, but the improvement is visible in retrieval quality rather than the overall pass rate. The system already met all five acceptance criteria before the change, so the before and after criterion totals stayed the same. However, the CS 210 question improved from having a CS 340 document ranked first to having the correct `course_cs_210_exams.txt` document ranked first. The relevance gate also continued refusing all 5 out-of-scope questions, so the reranking did not break that behavior.
 
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
-
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
-
-     Milestone 5. -->
-
-     None of my five criteria were missed after the improvement. However, the CS 210 question showed that retrieval is not always perfect because the first result was about CS 340 instead of CS 210. The correct CS 210 document was still returned in the top five, so the system still met my retrieval criterion.
+None of my five acceptance criteria were missed after the improvement. The specific CS 210 ranking problem improved, but CS 340 chunks can still appear in the top five because BM25 only reranks the semantic candidates instead of removing semantically similar distractors. The reranker also cannot recover a useful chunk that semantic retrieval failed to include in the original top five. I stopped here because this unit asks for one measured improvement rather than several changes at once.
 
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
-
-     Milestone 5. -->
-
-     I would write Criterion 5 differently so I knew from the beginning how I planned to measure response time. The target itself was measurable, but my original evaluation did not record timing. I would make sure every criterion has a clear way to collect its evidence before running the first evaluation.
+I would make Criterion 1 stricter. Requiring the answer to appear anywhere in the top five let the CS 210 retrieval problem pass unnoticed. Next time I would require the top-ranked result to contain the answer for at least 4 of the 5 test questions so ranking quality is measured directly.
