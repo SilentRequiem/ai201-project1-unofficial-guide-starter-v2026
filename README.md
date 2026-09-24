@@ -295,14 +295,25 @@ If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 
 
 ## The Improvement
 
-**What I changed:** I added response-time measurement to the evaluation so each question records how many seconds it takes to retrieve and generate an answer.
+**What I changed:** I added BM25 keyword reranking after semantic retrieval. The system still uses Chroma semantic search to choose the top five candidate chunks, but BM25 reranks those same five chunks using exact words and numbers from the question. I kept the original cosine distances on every result so the relevance gate could continue using the same 0.6 cutoff.
 
-**Why I picked it:** I picked this change because Criterion 5 requires answers to finish within 5 seconds, but my baseline evaluation did not record timing. Adding timing gives me the evidence needed to test the criterion instead of guessing.
+**Why I picked it:** My baseline evaluation passed all five criteria, but the CS 210 question exposed a retrieval-ranking weakness. Before the change, `course_cs_340_exams.txt` ranked first even though the question specifically asked about CS 210. The correct `course_cs_210_exams.txt` result did not appear until rank 3. Because the problem involved an exact course identifier, I chose keyword reranking to give terms such as `CS 210` more influence without replacing semantic retrieval.
 
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+### CS 210 Retrieval — Before
+
+```text
+1. course_cs_340_exams.txt   distance 0.3631
+2. course_cs_340.txt         distance 0.4126
+3. course_cs_210_exams.txt   distance 0.4138
+4. course_cs_210_exams.txt   distance 0.4211
+5. course_cs_210.txt         distance 0.4242
 
 ### Run Log — After
+1. course_cs_210_exams.txt   distance 0.4138
+2. course_cs_340_exams.txt   distance 0.3631
+3. course_cs_210_exams.txt   distance 0.4211
+4. course_cs_340.txt         distance 0.4126
+5. course_cs_210.txt         distance 0.4242
 
 <!-- Same format, same five criteria, three runs each.
      `python run_eval.py --label after` -->
@@ -316,6 +327,33 @@ If I wrote Criterion 1 again, I would tighten it so that for at least 4 of my 5 
 | 5. Answers return within 5 seconds | 4 of 5 | 5 of 5 | 5 of 5 | 5 of 5 | MET |
 
 ### Evidence — After
+
+How quickly do student parking permits for the west lots sell out?
+run 1: pass (best distance 0.193, 3.25s)
+run 2: pass (best distance 0.193, 0.46s)
+run 3: pass (best distance 0.193, 0.60s)
+
+How long are wait times at Kestrel Commons between 12:15 and 1:00?
+run 1: pass (best distance 0.181, 0.73s)
+run 2: pass (best distance 0.181, 0.68s)
+run 3: pass (best distance 0.181, 0.81s)
+
+When is the best time to do laundry in Morrow House?
+run 1: pass (best distance 0.107, 0.73s)
+run 2: pass (best distance 0.107, 0.58s)
+run 3: pass (best distance 0.107, 0.63s)
+
+Which CS 210 exams are curved?
+run 1: pass (best distance 0.363, 0.72s)
+run 2: pass (best distance 0.363, 0.62s)
+run 3: pass (best distance 0.363, 0.63s)
+
+How often does the campus shuttle run on weekends?
+run 1: pass (best distance 0.180, 0.76s)
+run 2: pass (best distance 0.180, 0.52s)
+run 3: pass (best distance 0.180, 0.64s)
+
+Gate refused 5 of 5 out-of-scope questions.
 
 Produced by `run_eval.py::main`, using retrieval from `store.py::search` and chunks from `chunker.py::split_documents`.
 
