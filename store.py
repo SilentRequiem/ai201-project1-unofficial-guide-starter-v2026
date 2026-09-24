@@ -20,6 +20,11 @@ rest of the project if they were wrong:
 import os
 import shutil
 from dataclasses import dataclass
+import re
+import chromadb
+from rank_bm25 import BM25Okapi
+
+
 
 # Must be set BEFORE chromadb is imported. Without it, some Chroma versions
 # print "Failed to send telemetry event ..." on every single call — which looks
@@ -178,6 +183,66 @@ def build_index(
     return len(chunks)
 
 
+def _tokenize(text: str) -> list[str]:
+    """Simple tokenizer for BM25 that keeps words and numbers."""
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+def _hybrid_rerank(question: str, results: list[Result]) -> list[Result]:
+    """
+    Rerank the semantic top-k results with BM25.
+
+    The candidate chunks stay the same. BM25 only changes their order.
+    The original cosine distances are preserved so the relevance gate
+    can still use the same 0.6 cutoff.
+    """
+    if len(results) <= 1:
+        return results
+
+    query_tokens = _tokenize(question)
+    if not query_tokens:
+        return results
+
+    tokenized_chunks = [_tokenize(result.text) for result in results]
+
+    bm25 = BM25Okapi(tokenized_chunks)
+    bm25_scores = bm25.get_scores(query_tokens)
+
+    # Rank numbers start at 1.
+    semantic_rank = {
+        index: index + 1
+        for index in range(len(results))
+    }
+
+    bm25_order = sorted(
+        range(len(results)),
+        key=lambda index: bm25_scores[index],
+        reverse=True
+    )
+
+    bm25_rank = {
+        index: rank
+        for rank, index in enumerate(bm25_order, start=1)
+    }
+
+    # Reciprocal Rank Fusion.
+    # Give BM25 a little extra weight because the weakness we found
+    # involves an exact identifier: "CS 210".
+    rrf_k = 60
+
+    def hybrid_score(index):
+        semantic = 1 / (rrf_k + semantic_rank[index])
+        lexical = 1.5 / (rrf_k + bm25_rank[index])
+        return semantic + lexical
+
+    order = sorted(
+        range(len(results)),
+        key=hybrid_score,
+        reverse=True
+    )
+
+    return [results[index] for index in order]
+
 def search(
     question: str,
     top_k: int | None = None,
@@ -217,7 +282,7 @@ def search(
                 produced_by=str(meta.get("produced_by", "unknown")),
             )
         )
-    return results
+    return _hybrid_rerank(question, results)
 
 
 def index_exists(corpus: str | None = None, variant: str = "default") -> bool:
